@@ -40,24 +40,29 @@ export = (app: Application) => {
       }
     }
 
-    const propertyPresentIndicator = "<td align='center'>&#9989;</td>";
-    let propertyMissingIndicator = "<td align='center'>&#10060;</td>";
-    let comment = "<b>Don't forget to double-check that you have added appropriate properties in the properties file!</b>\n\nI have found the following properties in this PR:";
-    comment += "<table style='width:100%'><tr><th></th>";
-    propertiesFileNames.forEach(propertiesFileName => comment += "<th><i>" + propertiesFileName + "</i></th>");
-    comment += "</tr><tr>";
-    propertiesMap.forEach((propertyMap, propertyName) => {
-      comment += "<td><b>" + propertyName + "</b></td>";
-      propertiesFileNames.forEach(propertiesFileName => {
-        if (propertyMap.has(propertiesFileName)) {
-          comment += propertyPresentIndicator;
-        } else {
-          comment += propertyMissingIndicator;
-        }
+    let comment: string = "";
+    if (propertiesFileNames.length > 0) {
+      comment = "<b>Don't forget to double-check that you have added appropriate properties in the properties file!</b>\n\nI have found the following properties in this PR:";
+      const propertyPresentIndicator = "<td align='center'>&#9989;</td>";
+      let propertyMissingIndicator = "<td align='center'>&#10060;</td>";
+      comment += "<table style='width:100%'><tr><th></th>";
+      propertiesFileNames.forEach(propertiesFileName => comment += "<th><i>" + propertiesFileName + "</i></th>");
+      comment += "</tr><tr>";
+      propertiesMap.forEach((propertyMap, propertyName) => {
+        comment += "<td><b>" + propertyName + "</b></td>";
+        propertiesFileNames.forEach(propertiesFileName => {
+          if (propertyMap.has(propertiesFileName)) {
+            comment += propertyPresentIndicator;
+          } else {
+            comment += propertyMissingIndicator;
+          }
+        });
+        comment += "</tr>";
       });
-      comment += "</tr>";
-    });
-    comment += "</table>";
+      comment += "</table>";
+    } else {
+      comment = "I found <b>no properties file changes</b> so far in this PR. - PCB"
+    }
 
     const params = context.issue({body: comment});
     context.github.issues.createComment(params);
